@@ -19,6 +19,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
+      - name: Get Latest Release Tag
+        id: get_tag
+        run: |
+          latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+          echo "Latest release tag: $latest_tag"
+          echo "tag=$latest_tag" >> $GITHUB_ENV
+
       - name: Azure Container Registry Login
         run: |
           az acr login --name ${{ env.ACR_NAME }} --username ${{ env.ACR_USERNAME }} --password ${{ env.ACR_PASSWORD }}
@@ -32,4 +39,4 @@ jobs:
           context: .
           push: true
           file: ./DockerFileFolder/Dockerfile
-          tags: ${{ env.ACR_REPO }}:${{ github.ref_name }} 
+          tags: ${{ env.ACR_REPO }}:${{ env.tag }} 
